@@ -1,0 +1,14 @@
+ENTERPRISE CYBERSECURITY AND ACCESS CONTROL GUIDELINES
+Document Version: 2.4 | Classification: Enterprise-Internal
+
+1. Authentication & Multi-Factor Security
+All employees, contractors, and partners must authenticate through the centralized Single Sign-On (SSO) gateway. Multi-factor authentication (MFA) using hardware security keys or authenticator apps is mandatory for all access. SMS-based authentication is strictly prohibited.
+
+2. Hardware and Device Encryption
+All corporate laptops and mobile endpoints must have full disk encryption enabled via BitLocker (Windows) or FileVault (macOS). Unencrypted USB flash drives are strictly prohibited on corporate networks.
+
+3. Incident Response and Reporting
+If an employee suspects a phishing attack, credential compromise, or device theft, they must immediately contact the Security Operations Center (SOC) at security@enterprise.ai or dial the urgent hotline at extension 9110 within 30 minutes.
+
+4. Data Retention and Privacy
+Customer identifiable information (PII) must be stored in encrypted database clusters with automated 90-day key rotation. Exporting raw customer datasets to local machines without DPO authorization violates enterprise governance.
