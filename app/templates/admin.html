@@ -1,0 +1,209 @@
+{% extends "base.html" %}
+
+{% block title %}Admin Console{% endblock %}
+{% block page_title %}Enterprise Administration & System Governance{% endblock %}
+
+{% block content %}
+<!-- Admin Header -->
+<div class="d-flex flex-column flex-sm-row align-items-sm-center justify-content-between gap-3 mb-4">
+  <div>
+    <h4 class="fw-bold text-dark mb-1">System Governance & RBAC Console</h4>
+    <p class="text-muted small mb-0">Manage users, access permissions, departments, and vector index persistence.</p>
+  </div>
+  <button type="button" class="btn btn-outline-danger" onclick="rebuildGlobalIndex()">
+    <i class="bi bi-arrow-repeat me-1"></i> Rebuild Vector & BM25 Indexes
+  </button>
+</div>
+
+<!-- System Statistics Cards -->
+<div class="row g-3 mb-4">
+  <div class="col-sm-6 col-md-3">
+    <div class="stat-card">
+      <div class="stat-info">
+        <span class="stat-label">Total Users</span>
+        <span class="stat-value">{{ stats.total_users }}</span>
+        <span class="stat-subtext">Registered Accounts</span>
+      </div>
+      <div class="stat-icon icon-blue"><i class="bi bi-people"></i></div>
+    </div>
+  </div>
+
+  <div class="col-sm-6 col-md-3">
+    <div class="stat-card accent-purple">
+      <div class="stat-info">
+        <span class="stat-label">Total Documents</span>
+        <span class="stat-value text-purple" style="color: #7e22ce;">{{ stats.total_documents }}</span>
+        <span class="stat-subtext">Enterprise Files</span>
+      </div>
+      <div class="stat-icon icon-purple"><i class="bi bi-files"></i></div>
+    </div>
+  </div>
+
+  <div class="col-sm-6 col-md-3">
+    <div class="stat-card accent-green">
+      <div class="stat-info">
+        <span class="stat-label">FAISS Vectors</span>
+        <span class="stat-value text-success">{{ stats.total_vectors }}</span>
+        <span class="stat-subtext">Indexed Dimensions</span>
+      </div>
+      <div class="stat-icon icon-green"><i class="bi bi-cpu"></i></div>
+    </div>
+  </div>
+
+  <div class="col-sm-6 col-md-3">
+    <div class="stat-card accent-orange">
+      <div class="stat-info">
+        <span class="stat-label">System Queries</span>
+        <span class="stat-value text-warning">{{ stats.total_queries }}</span>
+        <span class="stat-subtext">Total Executions</span>
+      </div>
+      <div class="stat-icon icon-orange"><i class="bi bi-search"></i></div>
+    </div>
+  </div>
+</div>
+
+<!-- User Management Section -->
+<div class="enterprise-card p-0 overflow-hidden mb-4">
+  <div class="p-3 px-4 bg-light border-bottom d-flex align-items-center justify-content-between">
+    <h6 class="fw-bold text-dark mb-0"><i class="bi bi-people-fill text-primary me-2"></i> User Directory & Role Assignment</h6>
+    <span class="badge bg-white text-muted border small">{{ users|length }} Total Registered</span>
+  </div>
+
+  <div class="table-responsive">
+    <table class="table table-hover align-middle mb-0">
+      <thead class="table-light small">
+        <tr>
+          <th class="ps-4">User</th>
+          <th>Corporate Email</th>
+          <th>Department</th>
+          <th>Current Role</th>
+          <th>Account Status</th>
+          <th>Registered</th>
+          <th class="text-end pe-4">Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for u in users %}
+        <tr id="user-row-{{ u.id }}">
+          <td class="ps-4">
+            <div class="d-flex align-items-center gap-2">
+              <div class="user-avatar" style="width: 32px; height: 32px; font-size: 0.85rem;">
+                {{ u.username[0].upper() }}
+              </div>
+              <span class="fw-bold text-dark">{{ u.username }}</span>
+            </div>
+          </td>
+          <td class="small">{{ u.email }}</td>
+          <td>
+            <span class="badge bg-light text-dark border small">
+              {{ u.department.name if u.department else 'General Enterprise' }}
+            </span>
+          </td>
+          <td>
+            <select class="form-select form-select-sm" style="width: 110px;" onchange="updateUserRole({{ u.id }}, this.value)" {% if u.id == current_user.id %}disabled{% endif %}>
+              <option value="user" {% if u.role == 'user' %}selected{% endif %}>User</option>
+              <option value="admin" {% if u.role == 'admin' %}selected{% endif %}>Admin</option>
+            </select>
+          </td>
+          <td>
+            {% if u.is_active %}
+              <span class="badge bg-success-subtle text-success border border-success-subtle">Active</span>
+            {% else %}
+              <span class="badge bg-danger-subtle text-danger border border-danger-subtle">Deactivated</span>
+            {% endif %}
+          </td>
+          <td class="small text-muted">{{ u.created_at.strftime('%Y-%m-%d') }}</td>
+          <td class="text-end pe-4">
+            {% if u.id != current_user.id %}
+            <div class="btn-group">
+              <button type="button" class="btn btn-sm btn-light border" onclick="toggleUserStatus({{ u.id }}, {{ 'false' if u.is_active else 'true' }})" title="Toggle Active">
+                <i class="bi bi-power {% if u.is_active %}text-warning{% else %}text-success{% endif %}"></i>
+              </button>
+              <button type="button" class="btn btn-sm btn-light border text-danger" onclick="deleteUser({{ u.id }}, '{{ u.username }}')" title="Delete Account">
+                <i class="bi bi-trash"></i>
+              </button>
+            </div>
+            {% else %}
+            <span class="badge bg-light text-muted border small">Current Session</span>
+            {% endif %}
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<script>
+async function updateUserRole(userId, newRole) {
+  try {
+    const resp = await fetch(`/admin/api/admin/users/${userId}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ role: newRole })
+    });
+    const data = await resp.json();
+    if (resp.ok && data.success) {
+      showToast(`User role updated to ${newRole.toUpperCase()}.`, 'success');
+    } else {
+      showToast(data.error || 'Failed to update role.', 'danger');
+    }
+  } catch (err) {
+    showToast('Network error updating user role: ' + err, 'danger');
+  }
+}
+
+async function toggleUserStatus(userId, activate) {
+  try {
+    const resp = await fetch(`/admin/api/admin/users/${userId}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ is_active: activate })
+    });
+    const data = await resp.json();
+    if (resp.ok && data.success) {
+      showToast('User status updated.', 'success');
+      setTimeout(() => window.location.reload(), 800);
+    }
+  } catch (err) {
+    showToast('Failed to toggle status: ' + err, 'danger');
+  }
+}
+
+async function deleteUser(userId, username) {
+  if (!confirm(`Are you sure you want to delete user '${username}'?`)) return;
+
+  try {
+    const resp = await fetch(`/admin/api/admin/users/${userId}`, { method: 'DELETE' });
+    const data = await resp.json();
+    if (resp.ok && data.success) {
+      showToast(data.message, 'success');
+      const row = document.getElementById(`user-row-${userId}`);
+      if (row) row.remove();
+    } else {
+      showToast(data.error || 'Failed to delete user.', 'danger');
+    }
+  } catch (err) {
+    showToast('Error deleting user: ' + err, 'danger');
+  }
+}
+
+async function rebuildGlobalIndex() {
+  if (!confirm('Rebuild the entire FAISS vector index and BM25 index from scratch? This will recompute embeddings for all active documents.')) return;
+
+  showToast('Rebuilding vector indexes... Please wait.', 'info');
+  try {
+    const resp = await fetch('/admin/api/admin/rebuild-index', { method: 'POST' });
+    const data = await resp.json();
+    if (resp.ok && data.success) {
+      showToast(data.message, 'success');
+      setTimeout(() => window.location.reload(), 1500);
+    } else {
+      showToast(data.error || 'Rebuild failed.', 'danger');
+    }
+  } catch (err) {
+    showToast('Error rebuilding index: ' + err, 'danger');
+  }
+}
+</script>
+{% endblock %}

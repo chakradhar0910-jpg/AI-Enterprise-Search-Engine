@@ -1,0 +1,89 @@
+{% extends "base.html" %}
+
+{% block title %}Preview: {{ document.original_filename }}{% endblock %}
+{% block page_title %}Document Inspector{% endblock %}
+
+{% block content %}
+<div class="mb-4">
+  <a href="{{ url_for('documents.documents_view') }}" class="btn btn-sm btn-outline-secondary mb-3">
+    <i class="bi bi-arrow-left me-1"></i> Back to Documents
+  </a>
+
+  <!-- Document Meta Header -->
+  <div class="enterprise-card p-4 mb-4">
+    <div class="d-flex flex-column flex-md-row align-items-md-center justify-content-between gap-3">
+      <div class="d-flex align-items-center gap-3">
+        <div class="stat-icon icon-indigo">
+          <i class="bi bi-file-earmark-text-fill"></i>
+        </div>
+        <div>
+          <h4 class="fw-bold text-dark mb-1">{{ document.original_filename }}</h4>
+          <div class="d-flex flex-wrap align-items-center gap-2 small text-muted">
+            <span class="badge-filetype badge-{{ document.file_type }}">{{ document.file_type }}</span>
+            <span>•</span>
+            <span>Size: {{ document.formatted_size }}</span>
+            <span>•</span>
+            <span>Uploaded: {{ document.created_at.strftime('%Y-%m-%d %H:%M') }}</span>
+            <span>•</span>
+            <span>Department: <strong>{{ document.department.name if document.department else 'General Enterprise' }}</strong></span>
+          </div>
+        </div>
+      </div>
+
+      <div class="d-flex align-items-center gap-2">
+        {% if document.indexing_status == 'Indexed' %}
+          <span class="badge-status badge-indexed"><i class="bi bi-check2"></i> Indexed</span>
+        {% else %}
+          <span class="badge-status badge-processing"><i class="bi bi-hourglass-split"></i> {{ document.processing_status }}</span>
+        {% endif %}
+
+        <span class="badge bg-light text-dark border p-2">
+          <strong>{{ chunks|length }}</strong> Chunks Total
+        </span>
+      </div>
+    </div>
+
+    {% if document.summary %}
+    <div class="alert alert-light border mt-3 mb-0 small">
+      <strong><i class="bi bi-lightbulb text-warning me-1"></i> Automatic Document Summary Preview:</strong><br>
+      {{ document.summary }}
+    </div>
+    {% endif %}
+  </div>
+
+  <!-- Chunks Explorer -->
+  <h5 class="fw-bold text-dark mb-3">Extracted & Embedded Chunks ({{ chunks|length }})</h5>
+
+  {% if chunks %}
+  <div class="d-flex flex-column gap-3">
+    {% for chk in chunks %}
+    <div class="enterprise-card p-3">
+      <div class="d-flex align-items-center justify-content-between pb-2 border-bottom mb-2">
+        <div class="d-flex align-items-center gap-2">
+          <span class="badge bg-primary-subtle text-primary border border-primary-subtle fw-semibold">
+            Chunk #{{ chk.chunk_index + 1 }}
+          </span>
+          {% if chk.page_number %}
+            <span class="badge bg-light text-muted border">Page {{ chk.page_number }}</span>
+          {% endif %}
+          {% if chk.section_title %}
+            <span class="small fw-semibold text-secondary">{{ chk.section_title }}</span>
+          {% endif %}
+        </div>
+        <div class="small text-muted font-monospace">
+          FAISS ID: {{ chk.embedding_id if chk.embedding_id is not None else 'N/A' }} • ~{{ chk.token_count }} tokens
+        </div>
+      </div>
+      <div class="p-3 bg-light rounded-3 font-monospace small text-dark" style="white-space: pre-wrap; font-size: 0.85rem; line-height: 1.6;">
+{{ chk.chunk_text }}
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+  {% else %}
+  <div class="text-center py-5 enterprise-card">
+    <p class="text-muted">No text chunks extracted yet for this document.</p>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

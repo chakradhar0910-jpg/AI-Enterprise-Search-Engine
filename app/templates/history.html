@@ -1,0 +1,106 @@
+{% extends "base.html" %}
+
+{% block title %}Search History{% endblock %}
+{% block page_title %}Enterprise Search Audit & History{% endblock %}
+
+{% block content %}
+<div class="d-flex flex-column flex-sm-row align-items-sm-center justify-content-between gap-3 mb-4">
+  <div>
+    <h4 class="fw-bold text-dark mb-1">Search Audit Log</h4>
+    <p class="text-muted small mb-0">Track and review past natural-language queries and grounded answers.</p>
+  </div>
+  {% if histories %}
+  <button type="button" class="btn btn-outline-danger btn-sm" onclick="clearAllHistory()">
+    <i class="bi bi-trash3 me-1"></i> Clear Search History
+  </button>
+  {% endif %}
+</div>
+
+<div class="enterprise-card p-0 overflow-hidden mb-4">
+  {% if histories %}
+  <div class="table-responsive">
+    <table class="table table-hover align-middle mb-0">
+      <thead class="table-light small">
+        <tr>
+          <th class="ps-4">Natural Language Query</th>
+          <th>Retrieval Method</th>
+          <th>Grounded Summary Snippet</th>
+          <th>Referenced Documents</th>
+          <th>Executed At</th>
+          <th class="text-end pe-4">Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for item in histories %}
+        <tr id="hist-row-{{ item.id }}">
+          <td class="ps-4">
+            <a href="{{ url_for('search.search_view') }}?q={{ item.query_text }}" class="fw-bold text-dark text-decoration-none d-flex align-items-center gap-2">
+              <i class="bi bi-search text-primary small"></i>
+              <span>"{{ item.query_text }}"</span>
+            </a>
+          </td>
+          <td>
+            <span class="badge bg-light text-muted border small">{{ item.retrieval_method }}</span>
+          </td>
+          <td class="small text-muted" style="max-width: 320px;">
+            {{ item.answer_snippet or 'Direct passage retrieval.' }}
+          </td>
+          <td class="small text-primary fw-semibold">
+            {{ item.source_documents or 'General Knowledge Base' }}
+          </td>
+          <td class="small text-muted">{{ item.created_at.strftime('%Y-%m-%d %H:%M') }}</td>
+          <td class="text-end pe-4">
+            <div class="btn-group">
+              <a href="{{ url_for('search.search_view') }}?q={{ item.query }}" class="btn btn-sm btn-light border" title="Search Again">
+                <i class="bi bi-arrow-clockwise"></i>
+              </a>
+              <button type="button" class="btn btn-sm btn-light border text-danger" onclick="deleteHistoryItem({{ item.id }})" title="Delete entry">
+                <i class="bi bi-trash"></i>
+              </button>
+            </div>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}
+  <div class="text-center py-5">
+    <i class="bi bi-clock-history text-muted fs-1 mb-2 d-block"></i>
+    <h5 class="fw-bold text-dark">No Search History</h5>
+    <p class="text-muted small mb-3">Your previous search queries and generated answers will appear here.</p>
+    <a href="{{ url_for('search.search_view') }}" class="btn btn-sm btn-enterprise-primary">Start a New Search</a>
+  </div>
+  {% endif %}
+</div>
+
+<script>
+async function deleteHistoryItem(id) {
+  try {
+    const resp = await fetch(`/history/api/search/history/${id}`, { method: 'DELETE' });
+    const data = await resp.json();
+    if (resp.ok && data.success) {
+      showToast(data.message, 'success');
+      const row = document.getElementById(`hist-row-${id}`);
+      if (row) row.remove();
+    }
+  } catch (err) {
+    showToast('Failed to delete history item: ' + err, 'danger');
+  }
+}
+
+async function clearAllHistory() {
+  if (!confirm('Are you sure you want to clear your entire search history?')) return;
+  try {
+    const resp = await fetch('/history/api/search/history/clear', { method: 'POST' });
+    const data = await resp.json();
+    if (resp.ok && data.success) {
+      showToast(data.message, 'success');
+      setTimeout(() => window.location.reload(), 800);
+    }
+  } catch (err) {
+    showToast('Failed to clear search history: ' + err, 'danger');
+  }
+}
+</script>
+{% endblock %}

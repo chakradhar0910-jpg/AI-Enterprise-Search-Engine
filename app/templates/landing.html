@@ -1,0 +1,317 @@
+{% extends "base.html" %}
+
+{% block title %}Intelligent Enterprise Search & RAG Platform{% endblock %}
+
+{% block public_content %}
+<div class="landing-page" style="background-color: #ffffff; color: #0f172a; overflow-x: hidden;">
+  <!-- Modern Navigation Bar -->
+  <nav class="navbar navbar-expand-lg py-3 sticky-top" style="background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px); border-bottom: 1px solid #e2e8f0;">
+    <div class="container">
+      <a class="navbar-brand d-flex align-items-center gap-2 fw-bold text-dark" href="/">
+        <div class="brand-icon" style="width: 34px; height: 34px;">
+          <i class="bi bi-search"></i>
+        </div>
+        <span class="fs-5">Cognitive<span style="color: var(--primary);">Search</span></span>
+      </a>
+
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#landingNav">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+
+      <div class="collapse navbar-collapse" id="landingNav">
+        <ul class="navbar-nav mx-auto mb-2 mb-lg-0 gap-3 fw-medium">
+          <li class="nav-item"><a class="nav-link text-muted" href="#about">Project Overview</a></li>
+          <li class="nav-item"><a class="nav-link text-muted" href="#how-it-works">How It Works</a></li>
+          <li class="nav-item"><a class="nav-link text-muted" href="#features">Core Features</a></li>
+          <li class="nav-item"><a class="nav-link text-muted" href="#tech-stack">Tech Stack</a></li>
+        </ul>
+
+        <div class="d-flex align-items-center gap-2">
+          <a href="{{ url_for('auth.login') }}" class="btn btn-outline-secondary px-3 py-2 fw-medium rounded-3">Sign In</a>
+          <a href="{{ url_for('auth.register') }}" class="btn btn-enterprise-primary px-3 py-2 rounded-3">Get Started</a>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Hero Section -->
+  <header class="hero-section py-5 position-relative" style="background: radial-gradient(circle at top right, #e0e7ff 0%, #ffffff 60%);">
+    <div class="container py-5">
+      <div class="row align-items-center g-5">
+        <div class="col-lg-6">
+          <div class="badge bg-primary-subtle text-primary border border-primary-subtle px-3 py-2 rounded-pill fw-semibold mb-3">
+            <i class="bi bi-cpu me-1"></i> B.Tech Capstone Project • Production Ready
+          </div>
+          <h1 class="display-4 fw-extrabold text-dark tracking-tight mb-3" style="line-height: 1.15;">
+            Search Smarter. Discover Knowledge <span style="background: linear-gradient(135deg, var(--primary), var(--accent)); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">Faster.</span>
+          </h1>
+          <p class="lead text-muted mb-4 fs-5" style="line-height: 1.6;">
+            An intelligent enterprise search platform powered by semantic search and Retrieval-Augmented Generation. Find relevant information across your documents and get contextual answers instantly.
+          </p>
+          <div class="d-flex flex-wrap gap-3">
+            <a href="{{ url_for('auth.register') }}" class="btn btn-enterprise-primary btn-lg px-4 py-3 rounded-3 shadow">
+              <i class="bi bi-rocket-takeoff me-1"></i> Get Started
+            </a>
+            <a href="#how-it-works" class="btn btn-enterprise-outline btn-lg px-4 py-3 rounded-3">
+              <i class="bi bi-play-circle me-1"></i> Explore Features
+            </a>
+          </div>
+
+          <div class="d-flex align-items-center gap-4 mt-5 pt-3 border-top border-light-subtle">
+            <div>
+              <div class="fw-bold fs-5 text-dark">FAISS + BM25</div>
+              <small class="text-muted">Hybrid RRF Retrieval</small>
+            </div>
+            <div class="vr"></div>
+            <div>
+              <div class="fw-bold fs-5 text-dark">all-MiniLM-L6-v2</div>
+              <small class="text-muted">Sentence Transformers</small>
+            </div>
+            <div class="vr"></div>
+            <div>
+              <div class="fw-bold fs-5 text-dark">100% Grounded</div>
+              <small class="text-muted">Zero Hallucinations</small>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-lg-6">
+          <!-- Architecture Flow Diagram Card -->
+          <div class="enterprise-card shadow-lg border-0 p-4" style="background: #ffffff; border-radius: 20px;">
+            <div class="d-flex align-items-center justify-content-between pb-3 border-bottom mb-3">
+              <div class="d-flex align-items-center gap-2">
+                <span class="badge bg-danger rounded-circle p-1"></span>
+                <span class="badge bg-warning rounded-circle p-1"></span>
+                <span class="badge bg-success rounded-circle p-1"></span>
+                <span class="small fw-bold ms-2 text-dark">Cognitive Pipeline Simulator</span>
+              </div>
+              <span class="badge bg-light text-primary border small">Live Execution</span>
+            </div>
+
+            <!-- Visual Flow Stages -->
+            <div class="p-3 bg-light rounded-3 mb-3 border">
+              <div class="small text-muted fw-bold mb-1"><i class="bi bi-file-earmark-arrow-up text-primary"></i> 1. Ingest & Chunking</div>
+              <div class="small text-dark font-monospace">PDF / DOCX / TXT &rarr; Structural Pages &rarr; 800-char Overlapping Chunks</div>
+            </div>
+
+            <div class="p-3 bg-light rounded-3 mb-3 border">
+              <div class="small text-muted fw-bold mb-1"><i class="bi bi-layers text-primary"></i> 2. Hybrid Dual Retrieval</div>
+              <div class="d-flex justify-content-between small text-dark font-monospace">
+                <span>Dense: FAISS Cosine</span>
+                <span>Sparse: BM25 Okapi</span>
+              </div>
+              <div class="progress mt-2" style="height: 6px;">
+                <div class="progress-bar bg-primary" style="width: 50%;"></div>
+                <div class="progress-bar bg-info" style="width: 50%;"></div>
+              </div>
+            </div>
+
+            <div class="p-3 bg-light rounded-3 border">
+              <div class="small text-muted fw-bold mb-1"><i class="bi bi-robot text-primary"></i> 3. Grounded Synthesis</div>
+              <div class="small text-success fw-semibold"><i class="bi bi-check2-circle"></i> Strict System Prompt + Verified Source Attribution</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Problem Statement & Solution -->
+  <section id="about" class="py-5" style="background: #f8fafc;">
+    <div class="container py-4">
+      <div class="text-center max-w-xl mx-auto mb-5" style="max-width: 700px;">
+        <span class="text-primary fw-bold text-uppercase small letter-spacing-1">The Problem & Solution</span>
+        <h2 class="display-6 fw-bold mt-2">Why Keyword Search Fails in Modern Enterprises</h2>
+        <p class="text-muted">
+          Traditional keyword searching matches exact words but misses natural language semantics, creating massive information silos and wasted employee hours.
+        </p>
+      </div>
+
+      <div class="row g-4">
+        <div class="col-md-6">
+          <div class="p-4 bg-white border border-danger-subtle rounded-4 h-100 shadow-sm">
+            <div class="d-flex align-items-center gap-2 text-danger fw-bold mb-3">
+              <i class="bi bi-x-circle-fill fs-4"></i>
+              <span>Traditional Keyword Matching</span>
+            </div>
+            <p class="text-muted">
+              Document states: <em>"Employees can request paid time off through the HR portal."</em>
+            </p>
+            <p class="text-muted">
+              User asks: <strong>"How can I apply for vacation?"</strong>
+            </p>
+            <div class="alert alert-danger py-2 mb-0 small">
+              <strong>Result:</strong> 0 Matches found. Exact keywords differ, leaving users stranded.
+            </div>
+          </div>
+        </div>
+
+        <div class="col-md-6">
+          <div class="p-4 bg-white border border-success-subtle rounded-4 h-100 shadow-sm">
+            <div class="d-flex align-items-center gap-2 text-success fw-bold mb-3">
+              <i class="bi bi-check-circle-fill fs-4"></i>
+              <span>Our Semantic RAG Architecture</span>
+            </div>
+            <p class="text-muted">
+              Dense vector embeddings map both statements to adjacent coordinates in high-dimensional semantic space.
+            </p>
+            <p class="text-muted">
+              The LLM reads the retrieved context and answers concisely: <strong>"You can apply for vacation by submitting a paid time off request in the HR portal (Leave Policy.pdf, Page 4)."</strong>
+            </p>
+            <div class="alert alert-success py-2 mb-0 small">
+              <strong>Result:</strong> Instant, contextual answer grounded in verified company policy.
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- How It Works Section -->
+  <section id="how-it-works" class="py-5">
+    <div class="container py-4">
+      <div class="text-center max-w-xl mx-auto mb-5" style="max-width: 700px;">
+        <span class="text-primary fw-bold text-uppercase small">Pipeline Architecture</span>
+        <h2 class="display-6 fw-bold mt-2">How the Intelligent Retrieval Pipeline Works</h2>
+      </div>
+
+      <div class="row g-4 text-center">
+        <div class="col-md-4">
+          <div class="enterprise-card h-100 p-4">
+            <div class="stat-icon icon-indigo mx-auto mb-3">
+              <i class="bi bi-cloud-arrow-up"></i>
+            </div>
+            <h5 class="fw-bold">1. Ingestion & Preprocessing</h5>
+            <p class="text-muted small">
+              Enterprise PDFs, Word documents, and text files are extracted, cleaned, and split into overlapping semantic chunks with page coordinates.
+            </p>
+          </div>
+        </div>
+
+        <div class="col-md-4">
+          <div class="enterprise-card h-100 p-4">
+            <div class="stat-icon icon-purple mx-auto mb-3">
+              <i class="bi bi-diagram-3"></i>
+            </div>
+            <h5 class="fw-bold">2. Hybrid Retrieval (RRF)</h5>
+            <p class="text-muted small">
+              Dense vectors generated by Sentence Transformers are indexed in FAISS, while BM25 handles exact entity matching. Reciprocal Rank Fusion combines both.
+            </p>
+          </div>
+        </div>
+
+        <div class="col-md-4">
+          <div class="enterprise-card h-100 p-4">
+            <div class="stat-icon icon-green mx-auto mb-3">
+              <i class="bi bi-chat-heart"></i>
+            </div>
+            <h5 class="fw-bold">3. Grounded Generation</h5>
+            <p class="text-muted small">
+              Retrieved chunks pass through Cross-Encoder reranking before a strictly constrained LLM synthesizes an accurate answer with exact document and page references.
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Core Features Grid -->
+  <section id="features" class="py-5" style="background: #f8fafc;">
+    <div class="container py-4">
+      <div class="text-center max-w-xl mx-auto mb-5" style="max-width: 700px;">
+        <span class="text-primary fw-bold text-uppercase small">Enterprise Capabilities</span>
+        <h2 class="display-6 fw-bold mt-2">Built for Real Enterprise Security & Precision</h2>
+      </div>
+
+      <div class="row g-4">
+        <div class="col-md-4">
+          <div class="p-4 bg-white rounded-3 border h-100 shadow-sm">
+            <i class="bi bi-shield-lock-fill text-primary fs-3 mb-3 d-block"></i>
+            <h5 class="fw-bold">Permission-Aware Retrieval</h5>
+            <p class="text-muted small">Department-level scoping guarantees users only retrieve document passages they are authorized to access.</p>
+          </div>
+        </div>
+
+        <div class="col-md-4">
+          <div class="p-4 bg-white rounded-3 border h-100 shadow-sm">
+            <i class="bi bi-file-earmark-check-fill text-primary fs-3 mb-3 d-block"></i>
+            <h5 class="fw-bold">Strict Source Attribution</h5>
+            <p class="text-muted small">Every answer is accompanied by clickable document citations, exact page numbers, and snippet previews.</p>
+          </div>
+        </div>
+
+        <div class="col-md-4">
+          <div class="p-4 bg-white rounded-3 border h-100 shadow-sm">
+            <i class="bi bi-funnel-fill text-primary fs-3 mb-3 d-block"></i>
+            <h5 class="fw-bold">Cross-Encoder Reranking</h5>
+            <p class="text-muted small">Candidates retrieved from dual search channels are reranked using a deep cross-encoder to elevate the most relevant passages.</p>
+          </div>
+        </div>
+
+        <div class="col-md-4">
+          <div class="p-4 bg-white rounded-3 border h-100 shadow-sm">
+            <i class="bi bi-clock-history text-primary fs-3 mb-3 d-block"></i>
+            <h5 class="fw-bold">Search History & Analytics</h5>
+            <p class="text-muted small">Detailed audit logs and search query tracking for monitoring knowledge trends and employee queries.</p>
+          </div>
+        </div>
+
+        <div class="col-md-4">
+          <div class="p-4 bg-white rounded-3 border h-100 shadow-sm">
+            <i class="bi bi-database-check text-primary fs-3 mb-3 d-block"></i>
+            <h5 class="fw-bold">Persistent FAISS Vector DB</h5>
+            <p class="text-muted small">Vectors are stored persistently on disk. When documents are deleted, all associated embeddings are purged cleanly.</p>
+          </div>
+        </div>
+
+        <div class="col-md-4">
+          <div class="p-4 bg-white rounded-3 border h-100 shadow-sm">
+            <i class="bi bi-chat-square-text-fill text-primary fs-3 mb-3 d-block"></i>
+            <h5 class="fw-bold">Interactive RAG Chat</h5>
+            <p class="text-muted small">Conversational interface with multi-turn context retention, persistent threads, and markdown rendering.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Technology Stack Section -->
+  <section id="tech-stack" class="py-5">
+    <div class="container py-4 text-center">
+      <span class="text-primary fw-bold text-uppercase small">Engineering Foundation</span>
+      <h2 class="display-6 fw-bold mt-2 mb-4">Powered by Modern AI & Full-Stack Tech</h2>
+
+      <div class="d-flex flex-wrap justify-content-center gap-3">
+        <span class="badge bg-light text-dark border p-3 fs-6"><i class="bi bi-filetype-py text-primary me-2"></i>Python 3.12</span>
+        <span class="badge bg-light text-dark border p-3 fs-6"><i class="bi bi-braces text-primary me-2"></i>Flask & SQLAlchemy</span>
+        <span class="badge bg-light text-dark border p-3 fs-6"><i class="bi bi-cpu text-primary me-2"></i>Sentence Transformers</span>
+        <span class="badge bg-light text-dark border p-3 fs-6"><i class="bi bi-hdd-network text-primary me-2"></i>FAISS Vector Engine</span>
+        <span class="badge bg-light text-dark border p-3 fs-6"><i class="bi bi-search text-primary me-2"></i>BM25 Okapi</span>
+        <span class="badge bg-light text-dark border p-3 fs-6"><i class="bi bi-bootstrap text-primary me-2"></i>Bootstrap 5 & Chart.js</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- Call to Action Banner -->
+  <section class="py-5 bg-dark text-white text-center">
+    <div class="container py-4">
+      <h2 class="display-5 fw-bold mb-3">Ready to Experience True Enterprise Knowledge Retrieval?</h2>
+      <p class="lead text-light-50 mb-4" style="max-width: 650px; margin: 0 auto; color: #94a3b8;">
+        Sign in with the preconfigured demo accounts or register your own enterprise profile to test document indexing and RAG question answering.
+      </p>
+      <div class="d-flex justify-content-center gap-3">
+        <a href="{{ url_for('auth.login') }}" class="btn btn-enterprise-primary btn-lg px-4 py-3">Sign In to Workspace</a>
+        <a href="{{ url_for('auth.register') }}" class="btn btn-outline-light btn-lg px-4 py-3">Register New User</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="py-4 border-top text-center text-muted small bg-light">
+    <div class="container">
+      <p class="mb-1"><strong>CognitiveSearch Enterprise</strong> • AI-Based Enterprise Search Engine using Semantic Search & RAG</p>
+      <p class="mb-0 text-secondary">Academic B.Tech Engineering Capstone Project • Fully Functional Implementation</p>
+    </div>
+  </footer>
+</div>
+{% endblock %}

@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+
+{% block title %}500 Server Error{% endblock %}
+
+{% block content %}
+<div class="text-center py-5">
+  <div class="stat-icon icon-purple mx-auto mb-3" style="width: 64px; height: 64px; font-size: 2rem;">
+    <i class="bi bi-exclamation-triangle"></i>
+  </div>
+  <h1 class="display-3 fw-bold text-dark mb-2">500</h1>
+  <h4 class="fw-bold text-dark mb-3">Internal System Error</h4>
+  <p class="text-muted small mb-4" style="max-width: 460px; margin: 0 auto;">
+    The cognitive processing engine encountered an unexpected internal issue. Please check server logs or contact technical operations.
+  </p>
+  <a href="{{ url_for('dashboard.dashboard_view') }}" class="btn btn-enterprise-primary">
+    <i class="bi bi-house-door me-1"></i> Return to Dashboard
+  </a>
+</div>
+{% endblock %}

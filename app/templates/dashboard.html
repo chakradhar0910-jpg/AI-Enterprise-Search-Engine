@@ -1,0 +1,233 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard{% endblock %}
+{% block page_title %}Enterprise Knowledge Dashboard{% endblock %}
+
+{% block content %}
+<!-- Welcome & Quick Action Bar -->
+<div class="d-flex flex-column flex-md-row align-items-md-center justify-content-between gap-3 mb-4">
+  <div>
+    <h4 class="fw-bold text-dark mb-1">Welcome, {{ current_user.username }}</h4>
+    <p class="text-muted small mb-0">
+      Department: <span class="fw-semibold text-dark">{{ current_user.department.name if current_user.department else 'General Enterprise' }}</span>
+      • Role: <span class="badge bg-light text-dark border">{{ current_user.role.upper() }}</span>
+    </p>
+  </div>
+  <div class="d-flex gap-2">
+    <a href="{{ url_for('search.search_view') }}" class="btn btn-enterprise-primary">
+      <i class="bi bi-stars"></i> Search Knowledge Base
+    </a>
+    <a href="{{ url_for('documents.documents_view') }}" class="btn btn-enterprise-outline">
+      <i class="bi bi-upload"></i> Upload Documents
+    </a>
+  </div>
+</div>
+
+<!-- Key Metric Stat Cards -->
+<div class="row g-3 mb-4">
+  <div class="col-sm-6 col-xl-3">
+    <div class="stat-card">
+      <div class="stat-info">
+        <span class="stat-label">Uploaded Docs</span>
+        <span class="stat-value">{{ total_docs }}</span>
+        <span class="stat-subtext">Enterprise Files</span>
+      </div>
+      <div class="stat-icon icon-indigo">
+        <i class="bi bi-files"></i>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-sm-6 col-xl-3">
+    <div class="stat-card accent-green">
+      <div class="stat-info">
+        <span class="stat-label">Indexed Docs</span>
+        <span class="stat-value text-success">{{ indexed_docs }}</span>
+        <span class="stat-subtext">FAISS Vectorized</span>
+      </div>
+      <div class="stat-icon icon-green">
+        <i class="bi bi-check2-circle"></i>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-sm-6 col-xl-3">
+    <div class="stat-card accent-purple">
+      <div class="stat-info">
+        <span class="stat-label">Search Queries</span>
+        <span class="stat-value text-purple" style="color: #7e22ce;">{{ total_queries }}</span>
+        <span class="stat-subtext">Hybrid RAG Runs</span>
+      </div>
+      <div class="stat-icon icon-purple">
+        <i class="bi bi-search"></i>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-sm-6 col-xl-3">
+    <div class="stat-card accent-blue">
+      <div class="stat-info">
+        {% if current_user.is_admin %}
+          <span class="stat-label">Total Users</span>
+          <span class="stat-value text-info">{{ total_users }}</span>
+          <span class="stat-subtext">Registered Members</span>
+        {% else %}
+          <span class="stat-label">Vector Embeddings</span>
+          <span class="stat-value text-info">{{ vector_count }}</span>
+          <span class="stat-subtext">384-Dim Passages</span>
+        {% endif %}
+      </div>
+      <div class="stat-icon icon-blue">
+        <i class="bi {% if current_user.is_admin %}bi-people{% else %}bi-cpu{% endif %}"></i>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Analytical Charts Row -->
+<div class="row g-4 mb-4">
+  <div class="col-lg-8">
+    <div class="enterprise-card h-100">
+      <div class="card-header-clean">
+        <h6 class="card-title-clean">
+          <i class="bi bi-graph-up text-primary"></i> Search Activity (Past 7 Days)
+        </h6>
+        <span class="badge bg-light text-muted border small">Real-Time Aggregation</span>
+      </div>
+      <div class="chart-box">
+        <canvas id="searchActivityChart"></canvas>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-lg-4">
+    <div class="enterprise-card h-100">
+      <div class="card-header-clean">
+        <h6 class="card-title-clean">
+          <i class="bi bi-pie-chart text-primary"></i> Document Distribution
+        </h6>
+        <span class="badge bg-light text-muted border small">By File Format</span>
+      </div>
+      <div class="chart-box">
+        <canvas id="docTypeChart"></canvas>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Tables Row -->
+<div class="row g-4">
+  <!-- Recent Uploaded Documents -->
+  <div class="col-lg-6">
+    <div class="enterprise-card h-100">
+      <div class="card-header-clean">
+        <h6 class="card-title-clean">
+          <i class="bi bi-folder-check text-primary"></i> Recent Uploaded Documents
+        </h6>
+        <a href="{{ url_for('documents.documents_view') }}" class="small text-primary text-decoration-none fw-semibold">View All</a>
+      </div>
+
+      {% if recent_docs %}
+      <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+          <thead class="table-light small">
+            <tr>
+              <th>Document</th>
+              <th>Format</th>
+              <th>Size</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for doc in recent_docs %}
+            <tr>
+              <td>
+                <div class="d-flex align-items-center gap-2">
+                  <i class="bi bi-file-earmark-text text-primary"></i>
+                  <a href="{{ url_for('documents.preview_document', doc_id=doc.id) }}" class="text-dark fw-semibold text-decoration-none text-truncate" style="max-width: 180px;">
+                    {{ doc.original_filename }}
+                  </a>
+                </div>
+              </td>
+              <td>
+                <span class="badge-filetype badge-{{ doc.file_type }}">{{ doc.file_type }}</span>
+              </td>
+              <td class="text-muted small">{{ doc.formatted_size }}</td>
+              <td>
+                {% if doc.indexing_status == 'Indexed' %}
+                  <span class="badge-status badge-indexed"><i class="bi bi-check2"></i> Indexed</span>
+                {% elif doc.processing_status == 'Processing' %}
+                  <span class="badge-status badge-processing"><i class="bi bi-hourglass-split"></i> Processing</span>
+                {% else %}
+                  <span class="badge-status badge-failed"><i class="bi bi-exclamation-circle"></i> {{ doc.processing_status }}</span>
+                {% endif %}
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      {% else %}
+      <div class="text-center py-5">
+        <i class="bi bi-inbox text-muted fs-1 mb-2 d-block"></i>
+        <p class="text-muted small mb-3">No enterprise documents uploaded yet.</p>
+        <a href="{{ url_for('documents.documents_view') }}" class="btn btn-sm btn-enterprise-primary">Upload First Document</a>
+      </div>
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- Recent Search Activity -->
+  <div class="col-lg-6">
+    <div class="enterprise-card h-100">
+      <div class="card-header-clean">
+        <h6 class="card-title-clean">
+          <i class="bi bi-clock-history text-primary"></i> Recent Search Activity
+        </h6>
+        <a href="{{ url_for('history.history_view') }}" class="small text-primary text-decoration-none fw-semibold">View All</a>
+      </div>
+
+      {% if recent_searches %}
+      <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+          <thead class="table-light small">
+            <tr>
+              <th>Query</th>
+              <th>Method</th>
+              <th>Chunks</th>
+              <th>Time</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for s in recent_searches %}
+            <tr>
+              <td>
+                <a href="{{ url_for('search.search_view') }}?q={{ s.query_text }}" class="text-dark fw-semibold text-decoration-none text-truncate d-block" style="max-width: 200px;">
+                  "{{ s.query_text }}"
+                </a>
+              </td>
+              <td>
+                <span class="badge bg-light text-muted border small">{{ s.retrieval_method }}</span>
+              </td>
+              <td class="small text-muted">{{ s.results_count }}</td>
+              <td class="text-muted small">{{ s.created_at.strftime('%b %d, %H:%M') }}</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      {% else %}
+      <div class="text-center py-5">
+        <i class="bi bi-search text-muted fs-1 mb-2 d-block"></i>
+        <p class="text-muted small mb-3">No search queries performed yet.</p>
+        <a href="{{ url_for('search.search_view') }}" class="btn btn-sm btn-enterprise-primary">Run First Search</a>
+      </div>
+      {% endif %}
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
+{% endblock %}

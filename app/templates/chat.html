@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+
+{% block title %}RAG Conversational Assistant{% endblock %}
+{% block page_title %}Enterprise AI Assistant{% endblock %}
+
+{% block content %}
+<div class="chat-layout">
+  <!-- Chat Sessions Sidebar -->
+  <aside class="chat-sidebar">
+    <div class="chat-sidebar-header">
+      <button type="button" class="btn btn-enterprise-primary w-100 justify-content-center" id="newChatBtn">
+        <i class="bi bi-plus-lg"></i> New Conversation
+      </button>
+    </div>
+
+    <div class="chat-threads-list">
+      {% for conv in conversations %}
+      <div class="chat-thread-item {% if loop.first %}active{% endif %}" id="thread-item-{{ conv.id }}" data-conv-id="{{ conv.id }}" onclick="loadConversation('{{ conv.id }}')">
+        <i class="bi bi-chat-left-text me-2 text-primary"></i>
+        <span class="thread-title">{{ conv.title }}</span>
+        <button class="thread-delete-btn" onclick="event.stopPropagation(); deleteConversation('{{ conv.id }}')" title="Delete thread">
+          <i class="bi bi-trash"></i>
+        </button>
+      </div>
+      {% endfor %}
+    </div>
+  </aside>
+
+  <!-- Active Chat Workspace -->
+  <main class="chat-main">
+    <div class="chat-header">
+      <div class="d-flex align-items-center gap-2">
+        <div class="avatar-assistant" style="width: 32px; height: 32px; font-size: 1rem; border-radius: 8px;">
+          <i class="bi bi-robot"></i>
+        </div>
+        <div>
+          <h6 class="fw-bold text-dark mb-0" id="activeChatTitle">Enterprise Assistant</h6>
+          <span class="badge bg-success-subtle text-success border border-success-subtle px-2 py-0" style="font-size: 0.7rem;">
+            RAG Grounded
+          </span>
+        </div>
+      </div>
+
+      <div class="text-muted small">
+        <i class="bi bi-shield-check text-primary me-1"></i> Knowledge Scoped
+      </div>
+    </div>
+
+    <!-- Scrollable Messages Area -->
+    <div class="chat-messages" id="chatMessagesArea">
+      <!-- Populated via chat.js -->
+    </div>
+
+    <!-- Chat Message Input Box -->
+    <div class="chat-input-container">
+      <div class="chat-input-box">
+        <textarea id="chatMessageInput" rows="1" placeholder="Ask a question about enterprise policies, project docs, or manuals..."></textarea>
+        <button type="button" class="btn-send-message" id="sendMessageBtn" title="Send message (Enter)">
+          <i class="bi bi-arrow-up"></i>
+        </button>
+      </div>
+      <div class="text-center text-muted mt-2" style="font-size: 0.75rem;">
+        Responses are synthesized strictly using retrieved context from verified enterprise documents.
+      </div>
+    </div>
+  </main>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{{ url_for('static', filename='js/chat.js') }}"></script>
+{% endblock %}

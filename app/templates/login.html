@@ -1,0 +1,83 @@
+{% extends "base.html" %}
+
+{% block title %}Sign In{% endblock %}
+
+{% block public_content %}
+<div class="d-flex align-items-center justify-content-center min-vh-100" style="background: radial-gradient(circle at top right, #e0e7ff 0%, #f8fafc 60%); padding: 2rem 1rem;">
+  <div class="enterprise-card p-4 p-sm-5 shadow-lg border-0" style="max-width: 440px; width: 100%; border-radius: 20px;">
+    <!-- Logo & Title -->
+    <div class="text-center mb-4">
+      <div class="brand-icon mx-auto mb-3" style="width: 48px; height: 48px; font-size: 1.5rem;">
+        <i class="bi bi-search"></i>
+      </div>
+      <h3 class="fw-bold text-dark">Welcome Back</h3>
+      <p class="text-muted small">Sign in to your CognitiveSearch enterprise account</p>
+    </div>
+
+    <!-- Flash message alerts -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        {% for category, message in messages %}
+          <div class="alert alert-{{ category if category != 'error' else 'danger' }} py-2 px-3 small border-0 shadow-sm mb-3">
+            <i class="bi bi-info-circle me-1"></i> {{ message }}
+          </div>
+        {% endfor %}
+      {% endif %}
+    {% endwith %}
+
+    <form method="POST" action="{{ url_for('auth.login') }}">
+      <div class="mb-3">
+        <label for="email" class="form-label small fw-semibold text-dark">Email Address</label>
+        <div class="input-group">
+          <span class="input-group-text bg-light border-end-0 text-muted"><i class="bi bi-envelope"></i></span>
+          <input type="email" class="form-control border-start-0 ps-0" id="email" name="email" placeholder="name@enterprise.ai" required autofocus>
+        </div>
+      </div>
+
+      <div class="mb-3">
+        <label for="password" class="form-label small fw-semibold text-dark">Password</label>
+        <div class="input-group">
+          <span class="input-group-text bg-light border-end-0 text-muted"><i class="bi bi-lock"></i></span>
+          <input type="password" class="form-control border-start-0 ps-0" id="password" name="password" placeholder="••••••••" required>
+        </div>
+      </div>
+
+      <div class="d-flex align-items-center justify-content-between mb-4">
+        <div class="form-check">
+          <input class="form-check-input" type="checkbox" id="remember" name="remember">
+          <label class="form-check-label small text-muted" for="remember">Remember me</label>
+        </div>
+      </div>
+
+      <button type="submit" class="btn btn-enterprise-primary w-100 py-2 fw-semibold justify-content-center">
+        Sign In to Platform
+      </button>
+    </form>
+
+    <!-- Quick Demo Logins for Examiner & Tester Convenience -->
+    <div class="mt-4 pt-3 border-top text-center">
+      <div class="small text-muted fw-semibold mb-2">Quick Demo Accounts (Click to Fill):</div>
+      <div class="d-flex gap-2 justify-content-center">
+        <button type="button" class="btn btn-sm btn-light border" onclick="quickFill('admin@enterprise.ai', 'Admin@123456')">
+          <i class="bi bi-shield-check text-primary"></i> Admin
+        </button>
+        <button type="button" class="btn btn-sm btn-light border" onclick="quickFill('user@enterprise.ai', 'User@123456')">
+          <i class="bi bi-person text-secondary"></i> Regular User
+        </button>
+      </div>
+    </div>
+
+    <div class="text-center mt-4">
+      <span class="small text-muted">Don't have an enterprise account?</span>
+      <a href="{{ url_for('auth.register') }}" class="small fw-semibold text-primary text-decoration-none ms-1">Register now</a>
+    </div>
+  </div>
+</div>
+
+<script>
+function quickFill(email, pass) {
+  document.getElementById('email').value = email;
+  document.getElementById('password').value = pass;
+}
+</script>
+{% endblock %}
